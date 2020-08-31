@@ -58,7 +58,9 @@ public class CassandraClientProducer {
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSession createCassandraClient(QuarkusCqlSessionState quarkusCqlSessionState) {
+  public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
+      QuarkusCqlSessionState quarkusCqlSessionState) {
+    System.out.println("producing the CompletionStage<QuarkusCqlSession>");
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -68,8 +70,23 @@ public class CassandraClientProducer {
             .withMetricRegistry(metricRegistry)
             .withQuarkusEventLoop(mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
-    quarkusCqlSessionState.setInitialized();
-    return builder.build();
+    return builder
+        .buildAsync()
+        .whenComplete(
+            (res, ex) -> {
+              if (ex == null) {
+                System.out.println("set initialized");
+                quarkusCqlSessionState.setInitialized();
+              }
+            });
+  }
+
+  @Produces
+  @ApplicationScoped
+  @Unremovable
+  public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
+    System.out.println("producing the QuarkusCqlSession");
+    return CompletableFutures.getUninterruptibly(sessionFuture);
   }
 
   public void setCassandraClientConfig(CassandraClientConfig config) {

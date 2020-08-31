@@ -18,32 +18,49 @@ package com.datastax.oss.quarkus.deployment.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import com.google.common.reflect.TypeToken;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.test.QuarkusUnitTest;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CassandraClientBuildItemConsumerTest {
+public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
 
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-cassandra-client.properties")
+          .withConfigurationResource("application-eager-session-init-disabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
   @Test
-  public void should_have_quarkus_cql_session_in_the_di_container() {
+  public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
     // verify that QuarkusCqlSession bean is present -
     // it must be unremovable to be present at this stage of the lifecycle
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
+    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+        .isFalse();
+  }
+
+  @Test
+  public void
+      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
+    assertThat(
+            Arc.container()
+                .instance(new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType())
+                .get())
+        .isNotNull();
+    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+        .isFalse();
   }
 
   protected static Consumer<BuildChainBuilder> buildCustomizer() {
