@@ -15,7 +15,7 @@
  */
 package com.datastax.oss.quarkus.deployment.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
@@ -32,33 +32,33 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
+public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
 
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-eager-session-init-disabled.properties")
+          .withConfigurationResource("application-eager-session-init-enabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
   @Test
-  public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
+  public void should_have_quarkus_cql_session_in_the_di_container_with_state_initialized() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
-        .isFalse();
+        .isTrue();
   }
 
   @Test
   public void
-      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
+      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_initialized() {
     assertThat(
             Arc.container()
                 .instance(new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType())
                 .get())
         .isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
-        .isFalse();
+        .isTrue();
   }
 
   protected static Consumer<BuildChainBuilder> buildCustomizer() {
