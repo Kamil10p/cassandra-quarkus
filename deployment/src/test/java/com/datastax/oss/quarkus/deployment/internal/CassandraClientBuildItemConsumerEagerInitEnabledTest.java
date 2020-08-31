@@ -25,6 +25,7 @@ import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.test.QuarkusUnitTest;
+import java.lang.reflect.Type;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -50,13 +51,12 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
   }
 
   @Test
+  @SuppressWarnings("UnstableApiUsage")
   public void
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_initialized() {
-    assertThat(
-            Arc.container()
-                .instance(new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType())
-                .get())
-        .isNotNull();
+    Type completionStageOfQuarkusCqlSession =
+        new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
+    assertThat(Arc.container().instance(completionStageOfQuarkusCqlSession).get()).isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
         .isTrue();
   }
