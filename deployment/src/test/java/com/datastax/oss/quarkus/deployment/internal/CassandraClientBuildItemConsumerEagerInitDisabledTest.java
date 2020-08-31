@@ -15,7 +15,7 @@
  */
 package com.datastax.oss.quarkus.deployment.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
@@ -27,6 +27,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.test.QuarkusUnitTest;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -43,6 +44,10 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
           .withConfigurationResource("application-eager-session-init-disabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
+  @SuppressWarnings("UnstableApiUsage")
+  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
+      new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
+
   @Test
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
@@ -51,14 +56,33 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   }
 
   @Test
-  @SuppressWarnings("UnstableApiUsage")
   public void
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
-    Type completionStageOfQuarkusCqlSession =
-        new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
-    assertThat(Arc.container().instance(completionStageOfQuarkusCqlSession).get()).isNotNull();
+    assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
+        .isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
         .isFalse();
+  }
+
+  @Test
+  public void should_initialize_the_quarkus_cql_session_when_accessed_for_the_first_time() {
+    Arc.container().instance(QuarkusCqlSession.class).get().getName();
+    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+        .isTrue();
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void
+      should_initialize_the_completion_stage_of_quarkus_cql_session_when_accessed_for_the_first_time()
+          throws ExecutionException, InterruptedException {
+    CompletionStage<QuarkusCqlSession> completionStage =
+        (CompletionStage<QuarkusCqlSession>)
+            Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
+    completionStage.toCompletableFuture().get();
+
+    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+        .isTrue();
   }
 
   protected static Consumer<BuildChainBuilder> buildCustomizer() {
