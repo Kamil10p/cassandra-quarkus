@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
@@ -31,9 +32,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
 
   @RegisterExtension
@@ -49,6 +54,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
       new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
 
   @Test
+  @Order(1)
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
@@ -56,6 +62,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   }
 
   @Test
+  @Order(2)
   public void
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
     assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
@@ -65,6 +72,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   }
 
   @Test
+  @Order(3)
   public void should_initialize_the_quarkus_cql_session_when_accessed_for_the_first_time() {
     Arc.container().instance(QuarkusCqlSession.class).get().getName();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
@@ -72,6 +80,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   }
 
   @Test
+  @Order(3)
   @SuppressWarnings("unchecked")
   public void
       should_initialize_the_completion_stage_of_quarkus_cql_session_when_accessed_for_the_first_time()
