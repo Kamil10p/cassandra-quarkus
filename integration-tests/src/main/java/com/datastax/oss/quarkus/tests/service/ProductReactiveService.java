@@ -20,31 +20,58 @@ import com.datastax.oss.quarkus.tests.entity.Product;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductReactiveService {
 
-  @Inject ProductReactiveDao dao;
+  @Inject CompletionStage<ProductReactiveDao> daoCompletionStage;
 
   public Uni<Void> create(Product product) {
-    return dao.create(product);
+    try {
+      // todo do convert:
+      // CompletionStage<Uni<Void>> uniCompletionStage = daoCompletionStage.thenApply(dao ->
+      // dao.create(product));
+      // to Uni<Void> uniCompletionStage (same for rest of the methods)
+
+      return daoCompletionStage.toCompletableFuture().get().create(product);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("msg");
+    }
   }
 
   public Uni<Void> update(Product product) {
-    return dao.update(product);
+    try {
+      return daoCompletionStage.toCompletableFuture().get().update(product);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("msg");
+    }
   }
 
   public Uni<Void> delete(UUID productId) {
-    return dao.delete(productId);
+    try {
+      return daoCompletionStage.toCompletableFuture().get().delete(productId);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("msg");
+    }
   }
 
   public Uni<Product> findById(UUID productId) {
-    return dao.findById(productId);
+    try {
+      return daoCompletionStage.toCompletableFuture().get().findById(productId);
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("msg");
+    }
   }
 
   public Multi<Product> findAll() {
-    return dao.findAll();
+    try {
+      return daoCompletionStage.toCompletableFuture().get().findAll();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("msg");
+    }
   }
 }

@@ -20,35 +20,39 @@ import com.datastax.oss.quarkus.tests.entity.Customer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class CustomerService {
 
-  @Inject CustomerDao dao;
+  @Inject CompletionStage<CustomerDao> daoCompletionStage;
 
-  public void create(Customer customer) {
-    dao.create(customer);
+  public CompletionStage<Void> create(Customer customer) {
+    return daoCompletionStage.thenCompose(dao -> dao.create(customer));
   }
 
-  public void update(Customer customer) {
-    dao.update(customer);
+  public CompletionStage<Void> update(Customer customer) {
+    return daoCompletionStage.thenCompose(dao -> dao.update(customer));
   }
 
-  public void delete(UUID customerId) {
-    dao.delete(customerId);
+  public CompletionStage<Void> delete(UUID customerId) {
+    return daoCompletionStage.thenCompose(dao -> dao.delete(customerId));
   }
 
-  public Customer findById(UUID customerId) {
-    return dao.findById(customerId);
+  public CompletionStage<Customer> findById(UUID customerId) {
+    return daoCompletionStage.thenCompose(dao -> dao.findById(customerId));
   }
 
-  public List<Customer> findAll() {
-    List<Customer> customers = new ArrayList<>();
-    for (Customer customer : dao.findAll()) {
-      customers.add(customer);
-    }
-    return customers;
+  public CompletionStage<List<Customer>> findAll() {
+    return daoCompletionStage.thenApply(
+        dao -> {
+          List<Customer> products = new ArrayList<>();
+          for (Customer product : dao.findAll()) {
+            products.add(product);
+          }
+          return products;
+        });
   }
 }

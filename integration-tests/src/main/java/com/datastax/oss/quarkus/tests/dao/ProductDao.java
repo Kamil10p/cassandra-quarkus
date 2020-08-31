@@ -23,21 +23,22 @@ import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
 import com.datastax.oss.quarkus.tests.entity.Product;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Dao
 public interface ProductDao {
 
   @Insert
-  void create(Product product);
+  CompletableFuture<Void> create(Product product);
 
   @Update
-  void update(Product product);
+  CompletableFuture<Void> update(Product product);
 
   @Delete(entityClass = Product.class)
-  void delete(UUID productId);
+  CompletableFuture<Void> delete(UUID productId);
 
   @Select
-  Product findById(UUID productId);
+  CompletableFuture<Product> findById(UUID productId);
 
   @Select
   PagingIterable<Product> findAll();
