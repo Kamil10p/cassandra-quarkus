@@ -38,9 +38,12 @@ import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class CassandraClientProducer {
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
 
   private CassandraClientConfig config;
   private MetricsConfig metricsConfig;
@@ -60,7 +63,6 @@ public class CassandraClientProducer {
   @Unremovable
   public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
       QuarkusCqlSessionState quarkusCqlSessionState) {
-    System.out.println("producing the CompletionStage<QuarkusCqlSession>");
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -75,7 +77,7 @@ public class CassandraClientProducer {
         .whenComplete(
             (res, ex) -> {
               if (ex == null) {
-                System.out.println("set initialized");
+                LOG.debug("Setting the QuarkusCqlSessionState to initialized.");
                 quarkusCqlSessionState.setInitialized();
               }
             });
@@ -85,7 +87,6 @@ public class CassandraClientProducer {
   @ApplicationScoped
   @Unremovable
   public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
-    System.out.println("producing the QuarkusCqlSession");
     return CompletableFutures.getUninterruptibly(sessionFuture);
   }
 
