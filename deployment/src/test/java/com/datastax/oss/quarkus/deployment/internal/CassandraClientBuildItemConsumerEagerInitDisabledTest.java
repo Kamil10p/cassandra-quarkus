@@ -16,7 +16,6 @@
 package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
