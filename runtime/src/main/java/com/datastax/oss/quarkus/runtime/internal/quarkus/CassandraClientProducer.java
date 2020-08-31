@@ -87,6 +87,11 @@ public class CassandraClientProducer {
   @ApplicationScoped
   @Unremovable
   public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
+    if (!config.cassandraClientInitConfig.eagerSessionInit) {
+      LOG.warn(
+          "Injecting QuarkusCqlSession and setting eager-session-init = false may cause deadlock on the Vert.x thread."
+              + "Please set it to true, or inject only CompletionStage<QuarkusCqlSession>.");
+    }
     return CompletableFutures.getUninterruptibly(sessionFuture);
   }
 
