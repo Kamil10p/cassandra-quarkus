@@ -21,57 +21,40 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductReactiveService {
 
-  @Inject CompletionStage<ProductReactiveDao> daoCompletionStage;
+  @Inject private CompletionStage<ProductReactiveDao> daoCompletionStage;
+  private Uni<ProductReactiveDao> daoUni;
+
+  // it cannot be done in the constructor, using constructor injection
+  // because such a way of injecting does not work in the native mode.
+  @PostConstruct
+  public void toUni() {
+    daoUni = Uni.createFrom().completionStage(daoCompletionStage);
+  }
 
   public Uni<Void> create(Product product) {
-    try {
-      // todo do convert:
-      // CompletionStage<Uni<Void>> uniCompletionStage = daoCompletionStage.thenApply(dao ->
-      // dao.create(product));
-      // to Uni<Void> uniCompletionStage (same for rest of the methods)
-
-      return daoCompletionStage.toCompletableFuture().get().create(product);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("msg");
-    }
+    return daoUni.flatMap(dao -> dao.create(product));
   }
 
   public Uni<Void> update(Product product) {
-    try {
-      return daoCompletionStage.toCompletableFuture().get().update(product);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("msg");
-    }
+    return daoUni.flatMap(dao -> dao.update(product));
   }
 
   public Uni<Void> delete(UUID productId) {
-    try {
-      return daoCompletionStage.toCompletableFuture().get().delete(productId);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("msg");
-    }
+    return daoUni.flatMap(dao -> dao.delete(productId));
   }
 
   public Uni<Product> findById(UUID productId) {
-    try {
-      return daoCompletionStage.toCompletableFuture().get().findById(productId);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("msg");
-    }
+    return daoUni.flatMap(dao -> dao.findById(productId));
   }
 
   public Multi<Product> findAll() {
-    try {
-      return daoCompletionStage.toCompletableFuture().get().findAll();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("msg");
-    }
+    return daoUni.toMulti().flatMap(ProductReactiveDao::findAll);
   }
 }
