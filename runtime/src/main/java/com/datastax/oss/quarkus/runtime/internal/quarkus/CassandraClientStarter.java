@@ -44,7 +44,7 @@ public class CassandraClientStarter {
       throws ExecutionException, InterruptedException {
     if (config.cassandraClientInitConfig.eagerSessionInit) {
       LOG.debug("Triggering eager initialization of Quarkus session at startup");
-      sessionProxy.toCompletableFuture().get().getName();
+      sessionProxy.toCompletableFuture().get();
     } else {
       LOG.debug("Not triggering eager initialization of Quarkus session at startup");
     }
