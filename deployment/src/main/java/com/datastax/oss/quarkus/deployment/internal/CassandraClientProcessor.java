@@ -277,8 +277,7 @@ class CassandraClientProcessor {
   HealthBuildItem addHealthCheck(CassandraClientBuildTimeConfig buildTimeConfig) {
     return new HealthBuildItem(
         "com.datastax.oss.quarkus.runtime.internal.health.CassandraHealthCheck",
-        buildTimeConfig.healthEnabled,
-        "cassandra");
+        buildTimeConfig.healthEnabled);
   }
 
   /**

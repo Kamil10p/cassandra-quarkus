@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.*;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import com.google.common.reflect.TypeToken;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -29,6 +28,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import javax.enterprise.util.TypeLiteral;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.MethodOrderer;
@@ -48,9 +48,8 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
           .withConfigurationResource("application-eager-session-init-disabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
-  @SuppressWarnings("UnstableApiUsage")
   private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
-      new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
+      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
 
   @Test
   @Order(1)
