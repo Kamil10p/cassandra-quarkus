@@ -34,6 +34,7 @@ import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
+import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -63,6 +64,7 @@ public class CassandraClientProducer {
   @Unremovable
   public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
       QuarkusCqlSessionState quarkusCqlSessionState) {
+    LOG.trace("Produce CompletionStage<QuarkusCqlSession> bean.");
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -87,6 +89,7 @@ public class CassandraClientProducer {
   @ApplicationScoped
   @Unremovable
   public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
+    LOG.trace("Produce QuarkusCqlSession bean.");
     if (!config.cassandraClientInitConfig.eagerSessionInit) {
       LOG.warn(
           "Injecting QuarkusCqlSession and setting eager-session-init = false may cause deadlock on the Vert.x thread."

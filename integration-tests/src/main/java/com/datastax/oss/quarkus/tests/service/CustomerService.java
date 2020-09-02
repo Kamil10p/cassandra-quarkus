@@ -17,8 +17,7 @@ package com.datastax.oss.quarkus.tests.service;
 
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
 import com.datastax.oss.quarkus.tests.entity.Customer;
-import java.util.ArrayList;
-import java.util.List;
+import io.smallrye.mutiny.Multi;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
@@ -45,14 +44,7 @@ public class CustomerService {
     return daoCompletionStage.thenCompose(dao -> dao.findById(customerId));
   }
 
-  public CompletionStage<List<Customer>> findAll() {
-    return daoCompletionStage.thenApply(
-        dao -> {
-          List<Customer> products = new ArrayList<>();
-          for (Customer product : dao.findAll()) {
-            products.add(product);
-          }
-          return products;
-        });
+  public Multi<Customer> findAll() {
+    return Multi.createFrom().completionStage(daoCompletionStage).flatMap(CustomerDao::findAll);
   }
 }

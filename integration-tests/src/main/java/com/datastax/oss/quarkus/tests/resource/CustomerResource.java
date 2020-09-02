@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import com.datastax.oss.quarkus.tests.service.CustomerService;
+import io.smallrye.mutiny.Multi;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -80,7 +80,7 @@ public class CustomerResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public CompletionStage<List<Customer>> getAllCustomers() {
+  public Multi<Customer> getAllCustomers() {
     return service.findAll();
   }
 }

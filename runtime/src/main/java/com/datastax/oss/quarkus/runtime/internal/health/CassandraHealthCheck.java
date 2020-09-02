@@ -21,14 +21,12 @@ import io.quarkus.arc.Arc;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
-import org.eclipse.microprofile.health.Readiness;
 
-@Readiness
-@ApplicationScoped
+// @Readiness
+// @ApplicationScoped
 public class CassandraHealthCheck implements HealthCheck {
   /** Name of the health-check. */
   private static final String HEALTH_CHECK_NAME = "DataStax Apache Cassandra Driver health check";

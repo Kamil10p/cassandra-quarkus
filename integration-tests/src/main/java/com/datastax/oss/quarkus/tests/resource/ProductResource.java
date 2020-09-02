@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Product;
 import com.datastax.oss.quarkus.tests.service.ProductService;
+import io.smallrye.mutiny.Multi;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -79,7 +79,7 @@ public class ProductResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public CompletionStage<List<Product>> getAllProducts() {
+  public Multi<Product> getAllProducts() {
     return service.findAll();
   }
 }

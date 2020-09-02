@@ -73,7 +73,7 @@ public class CassandraAsyncHealthCheckTest {
   public void should_return_status_down_when_cql_session_throws() {
     // given
     QuarkusCqlSession session = mock(QuarkusCqlSession.class);
-    when(session.executeAsync(CassandraHealthCheck.HEALTH_CHECK_QUERY))
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
         .thenReturn(CompletableFutures.failedFuture(new RuntimeException("problem")));
 
     // when
@@ -113,7 +113,7 @@ public class CassandraAsyncHealthCheckTest {
     QuarkusCqlSession session = mock(QuarkusCqlSession.class);
     AsyncResultSet resultSet = mock(AsyncResultSet.class);
     when(resultSet.one()).thenReturn(null);
-    when(session.executeAsync(CassandraHealthCheck.HEALTH_CHECK_QUERY))
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
         .thenReturn(CompletableFuture.completedFuture(resultSet));
     return session;
   }
@@ -129,7 +129,7 @@ public class CassandraAsyncHealthCheckTest {
     when(row.getString("cluster_name")).thenReturn(clusterName);
     when(row.getString("cql_version")).thenReturn(cqlVersion);
     when(asyncResultSet.one()).thenReturn(row);
-    when(session.executeAsync(CassandraHealthCheck.HEALTH_CHECK_QUERY))
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
         .thenReturn(CompletableFuture.completedFuture(asyncResultSet));
     Metadata metadata = mock(Metadata.class);
     when(session.getMetadata()).thenReturn(metadata);
