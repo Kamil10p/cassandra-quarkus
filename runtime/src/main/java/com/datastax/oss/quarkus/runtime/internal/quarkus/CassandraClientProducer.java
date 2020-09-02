@@ -34,7 +34,6 @@ import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
-import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
