@@ -15,7 +15,6 @@
  */
 package com.datastax.oss.quarkus.deployment.internal.metrics;
 
-import static com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
@@ -93,6 +92,6 @@ public class CassandraMetricsTest {
   }
 
   private boolean filterAllCassandraMetrics(MetricID v) {
-    return v.getName().startsWith(CASSANDRA_METRICS_PREFIX);
+    return v.getName().startsWith("cassandra");
   }
 }

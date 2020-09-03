@@ -20,8 +20,8 @@ import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
+import com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory;
 import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
-import com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.netty.channel.EventLoopGroup;
@@ -44,7 +44,13 @@ public class QuarkusDriverContext extends DefaultDriverContext {
 
   @Override
   protected MetricsFactory buildMetricsFactory() {
-    return new MicroProfileMetricsFactory(this, metricRegistry);
+    return new MicroProfileMetricsFactory(this);
+  }
+
+  @Nullable
+  @Override
+  public MetricRegistry getMetricRegistry() {
+    return metricRegistry;
   }
 
   @Override
