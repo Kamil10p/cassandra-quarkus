@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import com.google.common.reflect.TypeToken;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -28,6 +27,7 @@ import io.quarkus.test.QuarkusUnitTest;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
+import javax.enterprise.util.TypeLiteral;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
@@ -43,6 +43,9 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
           .withConfigurationResource("application-eager-session-init-enabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
+  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
+      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
+
   @Test
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_initialized() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
@@ -51,12 +54,10 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
   }
 
   @Test
-  @SuppressWarnings("UnstableApiUsage")
   public void
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_initialized() {
-    Type completionStageOfQuarkusCqlSession =
-        new TypeToken<CompletionStage<QuarkusCqlSession>>() {}.getType();
-    assertThat(Arc.container().instance(completionStageOfQuarkusCqlSession).get()).isNotNull();
+    assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
+        .isNotNull();
     assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
         .isTrue();
   }
