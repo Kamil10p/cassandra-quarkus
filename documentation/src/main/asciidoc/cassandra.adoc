@@ -610,14 +610,7 @@ The `quarkus.cassandra.init.eager-session-init` parameters state if the `Quarkus
 access (lazy) or when the application is starting (eager). The default value of this parameter is `true` meaning that the init process is eager.
 If you set it to `false` it means that the `QuarkusCqlSession` will be initialized lazily on the first access - for example
 when there is a first REST request that needs to interact with the Cassandra database. This is dangerous if you are using non-blocking Vert.x routes:
-[source, xml]
-----
-<dependency>
-    <groupId>io.quarkus</groupId>
-    <artifactId>quarkus-vertx-web</artifactId>
-</dependency>
-----
-because the initialization may be done on a thread that is not allowed to block, such as a Vert.x event loop thread.
+`io.quarkus:quarkus-vertx-web` because the initialization may be done on a thread that is not allowed to block, such as a Vert.x event loop thread.
 So the `quarkus.cassandra.init.eager-session-init = false` and injecting `QuarkusCqlSession` should be avoided when using Vert.x event loop thread.
 
 2. If you want to use Vert.x routes and have the lazy initialization behavior, you should inject only the `CompletionStage<QuarkusCqlSession>`.
