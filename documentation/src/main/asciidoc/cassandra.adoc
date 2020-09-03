@@ -600,6 +600,31 @@ Running it is as simple as executing `./target/quickstart-1.0.0-SNAPSHOT-runner`
 
 You can then point your browser to `http://localhost:8080/fruits.html` and use your application.
 
+== Eager vs Lazy Initialization
+
+This extension allows you to inject `QuarkusCqlSession` and the async version of this bean that is
+`CompletionStage<QuarkusCqlSession>`
+
+1. If you are injecting the `QuarkusCqlSession` directly, it means that the initialization of this bean will be blocking.
+The `quarkus.cassandra.init.eager-session-init` parameters state if the `QuarkusCqlSession` should be initialized on the first
+access (lazy) or when the application is starting (eager). The default value of this parameter is `true` meaning that the init process is eager.
+If you set it to `false` it means that the `QuarkusCqlSession` will be initialized lazily on the first access - for example
+when there is a first REST request that needs to interact with the Cassandra database. This is dangerous if you are using non-blocking Vert.x routes:
+[source, xml]
+----
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-vertx-web</artifactId>
+</dependency>
+----
+because the initialization may be done on a thread that is not allowed to block, such as a Vert.x event loop thread.
+So the `quarkus.cassandra.init.eager-session-init = false` and injecting `QuarkusCqlSession` should be avoided when using Vert.x event loop thread.
+
+2. If you want to use Vert.x routes and have the lazy initialization behavior, you should inject only the `CompletionStage<QuarkusCqlSession>`.
+In such a setup, the `QuarkusCqlSession` should not be injected directly. When injecting the `CompletionStage<QuarkusCqlSession>`, the lazy initialization process
+will be done in a non-blocking way leveraging the event loop of Vert.x, so you are not risking blocking the Vert.x thread.
+
+
 == Conclusion
 
 Accessing a Cassandra database from a client application is easy with Quarkus and the Cassandra
