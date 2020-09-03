@@ -66,6 +66,6 @@ public class QuarkusDriverContext extends DefaultDriverContext {
   @NonNull
   @Override
   public String getSessionName() {
-    return CASSANDRA_METRICS_PREFIX + super.getSessionName();
+    return CASSANDRA_METRICS_PREFIX + "." + super.getSessionName();
   }
 }
