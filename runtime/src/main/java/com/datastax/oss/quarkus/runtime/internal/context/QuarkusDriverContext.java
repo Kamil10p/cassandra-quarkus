@@ -29,6 +29,7 @@ import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusDriverContext extends DefaultDriverContext {
 
+  public static final String CASSANDRA_METRICS_PREFIX = "cassandra";
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup quarkusEventLoop;
 
@@ -60,5 +61,11 @@ public class QuarkusDriverContext extends DefaultDriverContext {
     } else {
       return super.buildNettyOptions();
     }
+  }
+
+  @NonNull
+  @Override
+  public String getSessionName() {
+    return CASSANDRA_METRICS_PREFIX + super.getSessionName();
   }
 }
